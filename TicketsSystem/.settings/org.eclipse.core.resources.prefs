@@ -1,0 +1,7 @@
+#Thu Oct 31 09:04:49 CST 2019
+eclipse.preferences.version=1
+encoding//src/com/jc/mapper/RowMapper.java=GBK
+encoding//src/com/jc/trans/Transaction.java=GBK
+encoding//src/com/jc/trans/impl/TransactionImpl.java=GBK
+encoding//src/com/jc/util/JDBCTemplate.java=GBK
+encoding//src/com/jc/util/JDBCUtil.java=GBK
