@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jc.dao.GameTypeDao">
+	<sql id="sqlPiece">
+			id,type_name,type_status,type_picture,type_create_time,type_update_time
+	</sql>
+	<select id="selectGameTypes" parameterType="com.jc.pojo.GameType" resultMap="gameTypeMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from 
+				t_game_type
+			<where>
+				type_status != 3
+				<if test="typeName neq null and typeName neq ''">
+					and type_name like '%${typeName}%'
+				</if>
+				<if test="typeStatus neq null">
+				 	and type_status = #{typeStatus}
+				</if>
+			</where>
+			 order by id asc
+	</select>
+	<insert id="insertGameType" parameterType="com.jc.pojo.GameType">
+			<selectKey order="BEFORE" resultType="java.lang.Integer" keyProperty="id">
+				select game_type_seq.nextval from dual
+			</selectKey>
+			insert into 
+				t_game_type 
+			values
+				(#{id},#{typeName},#{typeStatus},#{typePicture},#{createTime},#{updateTime})
+	</insert>
+	<select id="selectGameTypeByName" parameterType="com.jc.pojo.GameType" resultMap="gameTypeMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from 
+				t_game_type
+			where
+				type_name = #{typeName}
+				and type_status != 3
+	</select>
+	<select id="selectGameTypeById" parameterType="com.jc.pojo.GameType" resultMap="gameTypeMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from 
+				t_game_type
+			where 
+				id = #{id}
+				and type_status != 3
+	</select>
+	<update id="updateGameType" parameterType="com.jc.pojo.GameType">
+		update 
+     		t_game_type
+     	<set>
+			<if test="typeName neq null and typeName neq '' ">
+				type_name = #{typeName},	
+			</if>
+			<if test="typeStatus neq null">
+				type_status=#{typeStatus},	
+			</if>
+			<if test="typePicture neq null ">
+				type_picture = #{typePicture},	
+			</if>
+			<if test="updateTime neq null ">
+				type_update_time = #{updateTime}
+			</if>
+		</set>
+     	where 
+     		id=#{id}
+	</update>
+	<delete id="deleteGameType" parameterType="java.lang.Integer">
+		delete from 
+			t_game_type
+		where
+			id = #{id}
+	</delete>
+	<!-- 手动定义对应关系 -->
+	<resultMap type="com.jc.pojo.GameType" id="gameTypeMapper">
+		<result column="id" property="id"/>
+		<result column="type_name" property="typeName"/>
+		<result column="type_status" property="typeStatus"/>
+		<result column="type_picture" property="typePicture"/>
+		<result column="type_create_time" property="createTime"/>
+		<result column="type_update_time" property="updateTime"/>
+	</resultMap>
+</mapper>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jc.dao.ExchangeDao">
+	<sql id="sqlPiece">
+		ID, PROV_ID, CHARGE, CREATE_TIME, UPDATE_TIME, EXCHANGE_STATUS
+	</sql>
+	
+	<select id="selectExchangesByPage" parameterType="java.util.Map" resultMap="exchangeMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from
+				(select 
+					rownum num,t.* 
+				from
+					(select 
+						<include refid="sqlPiece"></include>
+					from 
+						t_exchange
+					<where>
+						<if test="(prov neq null) and (prov neq '')">
+							and PROV = #{prov}
+						</if>
+					</where>) t
+				where
+					rownum &lt;= #{pageNo} * #{pageSize} )
+			where 
+				num &gt; (#{pageNo} - 1) * #{pageSize}
+	</select>
+	<select id="selectExchanges" parameterType="java.util.Map" resultMap="exchangePlusMapper">
+			select 
+				ID, PROV_ID, CHARGE, CREATE_TIME, UPDATE_TIME, EXCHANGE_STATUS,PROVINCE_NAME
+			from
+				(select 
+					rownum num,t.* 
+				from
+					(select 
+						e.*,p.PROVINCE_NAME
+					from 
+						t_exchange e,t_province p
+					<where>
+						e.PROV_ID = p.id
+						<if test="(provId neq null) and (provId neq '')">
+							and PROV_ID = #{provId}
+						</if>
+					</where>
+					order by e.id asc
+					) t
+				where
+					rownum &lt;= #{pageNo} * #{pageSize} )
+			where 
+				num &gt; (#{pageNo} - 1) * #{pageSize}
+					
+	</select>
+	
+	<select id="countExchange" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select 
+		<!-- 如果入参值为1，查询最大值，为2，查询最小值，为3查数量 -->
+		<choose>
+			<when test="num == 1">
+				max(id)
+			</when>
+			
+			<when test="num == 2">
+				min(id)
+			</when>
+			
+			<otherwise>
+				count(id) 
+			</otherwise>
+		</choose>
+		from 
+			t_exchange
+			<where>
+				<if test="(provId neq null) and (provId neq '')">
+					and PROV_ID = #{provId}
+				</if>
+			</where>
+	</select>
+	<select id="selectExchangeById" parameterType="java.lang.Integer" resultMap="exchangeMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from 
+				t_exchange
+			where 
+				id = #{id}
+	</select>
+	<insert id="insertExchange" parameterType="com.jc.pojo.Exchange">
+		<selectKey order="BEFORE" resultType="int" keyProperty="id" >
+			select exchange_seq.nextval from dual
+		</selectKey>
+		insert into 
+			t_exchange
+		values
+			(#{id},#{provId},#{charge},#{createTime},#{updateTime},#{exchangeStatus})
+	</insert>
+	<update id="updateExchange" parameterType="com.jc.pojo.Exchange">
+		update 
+			t_exchange
+		<set>
+			<if test="charge neq null ">
+				CHARGE = #{charge},	
+			</if>
+			<if test="exchangeStatus neq null">
+				EXCHANGE_STATUS = #{exchangeStatus},	
+			</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	<delete id="deleteExchange" parameterType="java.lang.Integer">
+		delete from 
+			t_exchange
+		where
+			id = #{id}
+	</delete>
+	<select id="selectExchangeByProvId" parameterType="com.jc.pojo.Exchange" resultMap="exchangeMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from 
+				t_exchange
+			where 
+				PROV_ID = #{provId}
+	</select>
+	<select id="selectAllExchanges" resultMap="exchangeMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from 
+				t_exchange
+	</select>
+	<!-- 手动定义对应关系 -->
+	<resultMap type="com.jc.pojo.Exchange" id="exchangeMapper">
+		<result column="ID" property="id"/>
+		<result column="PROV_ID" property="provId"/>
+		<result column="CHARGE" property="charge"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="UPDATE_TIME" property="updateTime"/>
+		<result column="EXCHANGE_STATUS" property="exchangeStatus"/>
+	</resultMap>
+	<resultMap type="com.jc.vo.ExchangeVo" id="exchangePlusMapper">
+		<result column="ID" property="id"/>
+		<result column="PROV_ID" property="provId"/>
+		<result column="CHARGE" property="charge"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="UPDATE_TIME" property="updateTime"/>
+		<result column="EXCHANGE_STATUS" property="exchangeStatus"/>
+		<result column="PROVINCE_NAME" property="provinceName"/>
+	</resultMap>
+</mapper>

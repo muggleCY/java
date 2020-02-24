@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jc.dao.CardDao">
+	<sql id="sqlPiece">
+		ID, CARD_NUM, CARD_PWD, CARD_AMOUNT, PROV_ID, START_TIME, END_TIME, CARD_STATUS, CREATE_TIME
+	</sql>
+	<select id="selectCardByPage" parameterType="java.util.Map" resultMap="cardMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from
+				(select 
+					rownum num1,t.* 
+				from
+					(select 
+						<include refid="sqlPiece"></include>
+					from 
+						t_card
+					<where>
+						<if test="(cardNum neq null) and (cardNum neq '')">
+							and CARD_NUM like '%${cardNum}%'
+						</if>
+						<if test="(startTime neq null)">
+							and START_TIME &gt;= #{startTime}
+						</if>
+						<if test="(endTime neq null)">
+							and END_TIME &lt;= #{endTime}
+						</if>
+						<if test="(provId neq null) and (provId neq '')">
+							and PROV_ID = #{provId}
+						</if>
+					</where>) t
+				where
+					rownum &lt;= #{pageNo} * #{pageSize} )
+			where 
+				num1 &gt; (#{pageNo} - 1) * #{pageSize}
+					
+	</select>
+	<select id="selectCards" parameterType="java.util.Map" resultMap="cardPlusMapper">
+			select 
+				ID, CARD_NUM, CARD_PWD, CARD_AMOUNT, PROV_ID, START_TIME, END_TIME, CARD_STATUS, CREATE_TIME,PROVINCE_NAME
+			from
+				(select 
+					rownum num1,t.* 
+				from
+					(select 
+						c.*,p.PROVINCE_NAME
+					from 
+						t_card c,t_province p
+					<where>
+						c.PROV_ID = p.id
+						<if test="(cardNum neq null) and (cardNum neq '')">
+							and CARD_NUM like '%${cardNum}%'
+						</if>
+						<if test="(startTime neq null)">
+							and START_TIME &gt;= #{startTime}
+						</if>
+						<if test="(endTime neq null)">
+							and END_TIME &lt;= #{endTime}
+						</if>
+						<if test="(provId neq null) and (provId neq '')">
+							and PROV_ID = #{provId}
+						</if>
+					</where>
+					order by c.id asc
+					) t
+				where
+					rownum &lt;= #{pageNo} * #{pageSize} )
+			where 
+				num1 &gt; (#{pageNo} - 1) * #{pageSize}
+					
+	</select>
+	<select id="countCard" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select 
+		<!-- 如果入参值为1，查询最大值，为2，查询最小值，为3查数量 -->
+		<choose>
+			<when test="num1 == 1">
+				max(id)
+			</when>
+			
+			<when test="num1 == 2">
+				min(id)
+			</when>
+			
+			<otherwise>
+				count(id) 
+			</otherwise>
+		</choose>
+		from 
+			t_card
+			<where>
+				<if test="(cardNum neq null) and (cardNum neq '')">
+					and CARD_NUM like '%${cardNum}%'
+				</if>
+				<if test="(startTime neq null)">
+					and START_TIME &gt;= #{startTime}
+				</if>
+				<if test="(endTime neq null)">
+					and END_TIME &lt;= #{endTime}
+				</if>
+				<if test="(provId neq null) and (provId neq '')">
+					and PROV_ID = #{provId}
+				</if>
+			</where>
+	</select>
+	<insert id="insertCard" parameterType="com.jc.pojo.Card">
+		<selectKey order="BEFORE" resultType="int" keyProperty="id" >
+			select card_seq.nextval from dual
+		</selectKey>
+		insert into 
+			t_card
+		values
+			(#{id},#{cardNum},#{cardPwd},#{cardAmount},#{provId},#{startTime},#{endTime},#{cardStatus},#{createTime})
+	</insert>
+	<update id="updateCard" parameterType="com.jc.pojo.Card">
+		update 
+			t_card
+		<set>
+				<if test="(cardStatus neq null)">
+					CARD_STATUS = #{cardStatus},
+				</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	<select id="selectCardByNumAndPwd" parameterType="com.jc.pojo.Card" resultMap="cardMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from 
+				t_card
+				<where>
+					<if test="(cardNum neq null) and (cardNum neq '')">
+							and CARD_NUM = #{cardNum}
+					</if>
+					<if test="(cardPwd neq null) and (cardPwd neq '')">
+							and CARD_PWD = #{cardPwd}
+					</if>
+				</where>
+	</select>
+	<resultMap type="com.jc.pojo.Card" id="cardMapper">
+		<result column="ID" property="id"/>
+		<result column="CARD_NUM" property="cardNum"/>
+		<result column="CARD_PWD" property="cardPwd"/>
+		<result column="CARD_AMOUNT" property="cardAmount"/>
+		<result column="PROV_ID" property="provId"/>
+		<result column="START_TIME" property="startTime"/>
+		<result column="END_TIME" property="endTime"/>
+		<result column="CARD_STATUS" property="cardStatus"/>
+		<result column="CREATE_TIME" property="createTime"/>
+	</resultMap>
+	<resultMap type="com.jc.vo.CardVo" id="cardPlusMapper">
+		<result column="ID" property="id"/>
+		<result column="CARD_NUM" property="cardNum"/>
+		<result column="CARD_PWD" property="cardPwd"/>
+		<result column="CARD_AMOUNT" property="cardAmount"/>
+		<result column="PROV_ID" property="provId"/>
+		<result column="START_TIME" property="startTime"/>
+		<result column="END_TIME" property="endTime"/>
+		<result column="CARD_STATUS" property="cardStatus"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="PROVINCE_NAME" property="provinceName"/>
+	</resultMap>
+</mapper>

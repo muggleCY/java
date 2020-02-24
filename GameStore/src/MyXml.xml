@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+		<settings>
+			<!-- 是否启用延时加载 -->
+			<setting name="lazyLoadingEnabled" value="true"/>
+			<!-- 延时加载的策略 true：任意加载 false：按需加载 -->
+			<setting name="aggressiveLazyLoading" value="false"/>
+			<setting name="logImpl" value="STDOUT_LOGGING"/>
+		</settings>
+		<!-- 
+		 -->
+		<typeHandlers>
+			<typeHandler handler="com.jc.handler.GameTypeHandler" jdbcType="INTEGER" javaType="com.jc.pojo.GameType"/>
+		</typeHandlers>
+		<mappers>
+			<mapper resource="com/jc/dao/mapper/UserMapper.xml" />
+			<mapper resource="com/jc/dao/mapper/ProvinceMapper.xml" />
+			<mapper resource="com/jc/dao/mapper/ManagerMapper.xml" />
+			<mapper resource="com/jc/dao/mapper/GameTypeMapper.xml" />
+			<mapper resource="com/jc/dao/mapper/GameMapper.xml" />
+			<mapper resource="com/jc/dao/mapper/ExchangeMapper.xml" />
+			<mapper resource="com/jc/dao/mapper/CardMapper.xml" />
+			<mapper resource="com/jc/dao/mapper/PrepaidMapper.xml" />
+			<mapper resource="com/jc/dao/mapper/ExpenseMapper.xml" />
+			<!-- 
+			<mapper resource="com/ssm/dao/mapper/ImgMapper.xml"/>
+			<mapper resource="com/ssm/dao/mapper/CardMapper.xml"/>
+			 -->
+		</mappers>
+</configuration>
+

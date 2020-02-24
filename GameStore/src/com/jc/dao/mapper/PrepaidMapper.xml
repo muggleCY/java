@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jc.dao.PrepaidDao">
+	<sql id="sqlPiece">
+	ID,USER_ID,CARD_ID,CREATE_TIME
+	</sql>
+	
+	<insert id="insertPrepaid" parameterType="com.jc.pojo.Prepaid">
+		<selectKey order="BEFORE" resultType="int" keyProperty="id" >
+			select prepaid_seq.nextval from dual
+		</selectKey>
+		insert into 
+			t_prepaid
+		values
+			(#{id},#{userId},#{cardId},#{createTime})
+	</insert>
+	<select id="selectCardId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select distinct
+			CARD_ID
+		from
+			t_prepaid
+		where
+			USER_ID = #{userId}	
+	</select>
+	<select id="selectPrepaidVo" parameterType="java.lang.Integer" resultMap="prepaidPlusMapper">
+		select
+			p.USER_ID,p.CARD_ID,u.username,c.CARD_NUM,c.CARD_PWD,c.CARD_AMOUNT
+		from
+			t_user u , t_card c, t_prepaid p
+		where
+			u.user_id = p.USER_ID
+		and c.ID = p.CARD_ID
+		and	u.user_id = #{userId} 
+		and c.id in(
+				 select distinct card_id from t_prepaid where user_id = #{userId}
+			)
+	</select>
+	
+	<!-- 手动定义对应关系 -->
+	<resultMap type="com.jc.pojo.Prepaid" id="prepaidMapper">
+		<result column="ID" property="id"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="CARD_ID" property="cardId"/>
+		<result column="CREATE_TIME" property="createTime"/>
+	</resultMap>
+	<resultMap type="com.jc.vo.PrepaidVo" id="prepaidPlusMapper">
+		<result column="USER_ID" property="userId"/>
+		<result column="CARD_ID" property="cardId"/>
+		<result column="username" property="username"/>
+		<result column="CARD_NUM" property="cardNum"/>
+		<result column="CARD_PWD" property="cardPwd"/>
+		<result column="CARD_AMOUNT" property="cardAmount"/>
+	</resultMap>
+</mapper>

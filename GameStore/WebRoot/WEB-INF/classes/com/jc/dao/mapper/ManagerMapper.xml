@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jc.dao.ManagerDao">
+	<sql id="sqlPiece">
+			id,m_username,m_password
+	</sql>
+	<select id="selectManager" parameterType="com.jc.pojo.Manager" resultMap="ManagerMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from 
+				t_manager
+			where
+				m_username = #{username}
+				and
+				m_password = #{password}
+	</select>
+	<!-- 手动定义对应关系 -->
+	<resultMap type="com.jc.pojo.Manager" id="ManagerMapper">
+		<result column="id" property="id"/>
+		<result column="m_username" property="username"/>
+		<result column="m_password" property="password"/>
+	</resultMap>
+</mapper>

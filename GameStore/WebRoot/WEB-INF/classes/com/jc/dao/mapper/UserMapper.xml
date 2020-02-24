@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jc.dao.UserDao">
+		<sql id="sqlPiece">
+			user_id,username,password,iphone,prov_id,tariffe,currency,cardAmount,status,create_time,sex
+		</sql>
+		<select id="selectUserByNameAndPwd" parameterType="com.jc.pojo.User" resultMap="userMapper">
+				select 
+				<include refid="sqlPiece"></include>
+				from 
+					t_user
+				where
+					username = #{username}
+		</select>
+		<select id="selectUserByIphone" parameterType="java.lang.String" resultMap="userMapper">
+				select 
+				<include refid="sqlPiece"></include>
+				from 
+					t_user
+				where
+					iphone = #{iphone}
+		</select>
+		<insert id="insertUser" parameterType="com.jc.pojo.User">
+				<!-- 
+				<selectKey order="BEFORE" resultType="int" keyProperty="id">
+					select user_seq.nextval from dual
+				</selectKey>
+				 -->
+				insert into 
+					t_user 
+				values
+					(user_seq.nextval,#{username},#{password},#{iphone},#{provinceId},'100','0','0','1',to_date(#{createTime},'yyyy-MM-dd HH24:mi:ss'),#{sex})
+				<!-- 
+					(user_seq.nextval,#{username},#{password},#{iphone},#{provinceId},'100','0','0','1',to_date('20120927 20:09:47','YYYYMMDD HH24:MI:SS'),#{sex})
+				 -->
+		</insert>
+		<select id="selectUserByPage" parameterType="java.util.Map" resultMap="userMapper">
+				select 
+					<include refid="sqlPiece"></include>
+				from
+					(select 
+						rownum num,t.* 
+					from
+						(select 
+							<include refid="sqlPiece"></include>
+						from 
+							t_user
+						<where>
+							<if test="(username neq null) and (username neq '')">
+								and username like '%${username}%'
+							</if>
+							<if test="(iphone neq null) and (iphone neq '')">
+								and iphone = #{iphone}
+							</if>
+						</where>) t
+					where
+						rownum &lt;= #{pageNo} * #{pageSize} )
+				where 
+					num &gt; (#{pageNo} - 1) * #{pageSize}
+						
+		</select>
+		<select id="countUser" parameterType="java.util.Map" resultType="java.lang.Integer">
+			select 
+			<!-- 如果入参值为1，查询最大值，为2，查询最小值，为3查数量 -->
+			<choose>
+				<when test="num == 1">
+					max(user_id)
+				</when>
+				
+				<when test="num == 2">
+					min(user_id)
+				</when>
+				
+				<otherwise>
+					count(user_id) 
+				</otherwise>
+			</choose>
+			from 
+				t_user
+				<where>
+					<if test="(username neq null) and (username neq '')">
+						and username like '%${username}%'
+					</if>
+					<if test="(iphone neq null) and (iphone neq '')">
+						and iphone = #{iphone}
+					</if>
+				</where>
+		</select>
+		<update id="updateUser" parameterType="com.jc.pojo.User">
+			update 
+				t_user
+			<set>
+				<if test="password neq null">
+					password = #{password},
+				</if>
+				<if test="tariffe neq null">
+					tariffe = #{tariffe},
+				</if>
+				<if test="currency neq null">
+					currency = #{currency},
+				</if>
+				<if test="status neq null">
+					status = #{status},
+				</if>
+			</set>
+			where 
+				user_id = #{id}
+		</update>
+		<select id="selectUser" parameterType="com.jc.pojo.User" resultMap="userMapper">
+				select 
+				<include refid="sqlPiece"></include>
+				from 
+					t_user
+				where
+					user_id = #{id}
+		</select>
+		
+				<!-- 
+		<update id="updateUser" parameterType="com.jc.pojo.User">
+				update
+					t_user
+					<set>
+						<if test="username neq null and username neq ''">
+							username = #{username},
+						</if>
+						<if test="password neq null and password neq ''">
+							password = #{password},
+						</if>
+						<if test="truename neq null and truename neq ''">
+							truename = #{truename},
+						</if>
+						<if test="phoneNumber neq null and phoneNumber neq ''">
+							phonenumber = #{phoneNumber},
+						</if>
+						<if test="idCardNum neq null and idCardNum neq ''">
+							idCardNum = #{idCardNum},
+						</if>
+						<if test="userMoney neq null">
+							user_money = #{userMoney},
+						</if>
+						<if test="userMode neq null">
+							user_mode = #{userMode},
+						</if>
+					</set>
+				where
+					id = #{uid}
+		</update>
+				 -->
+	<resultMap type="com.jc.pojo.User" id="userMapper">
+		<result column="user_id" property="id"/>
+		<result column="username" property="username"/>
+		<result column="password" property="password"/>
+		<result column="iphone" property="iphone"/>
+		<result column="prov_id" property="provinceId"/>
+		<result column="tariffe" property="tariffe"/>
+		<result column="currency" property="currency"/>
+		<result column="cardAmount" property="cardAmount"/>
+		<result column="status" property="status"/>
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="sex" property="sex"/>
+	</resultMap>
+</mapper>
+

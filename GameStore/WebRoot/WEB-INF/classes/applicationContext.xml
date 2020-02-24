@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans  xmlns = "http://www.springframework.org/schema/beans" 
+       xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context = "http://www.springframework.org/schema/context"
+       xmlns:aop = "http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation = " http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+		   http://www.springframework.org/schema/context 
+       	   http://www.springframework.org/schema/context/spring-context.xsd
+       	   http://www.springframework.org/schema/aop
+       	   http://www.springframework.org/schema/aop/spring-aop.xsd
+       	   http://www.springframework.org/schema/mvc 
+       	   http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       	   http://www.springframework.org/schema/tx
+       	   http://www.springframework.org/schema/tx/spring-tx.xsd">
+ 	<import resource="classpath:/applicationContext-mvc.xml"/>
+    <!-- 扫包，添加注解的类所在包位置(会扫描指定目录下的所有文件，包括子文件夹中的文件) -->
+  	<context:component-scan base-package="com.jc"></context:component-scan>
+  	
+  	<!-- 配置数据库 -->
+  	<context:property-placeholder location="classpath:db.properties"/>
+  	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+  		<property name="driverClassName" value="${db.driverClassName}"></property>
+  		<property name="url" value="${db.url}"></property>
+  		<property name="username" value="${db.username}"></property>
+  		<property name="password" value="${db.password}"></property>
+  	</bean>
+  	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+  		<property name="configLocation" value="classpath:MyXml.xml"></property>
+  		<property name="dataSource" ref="dataSource" ></property>
+  	</bean>
+  	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+  		<property name="basePackage" value="com.jc.dao"></property>
+  	</bean>
+  	<!-- 配置事务管理器 -->
+  	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+  		<property name="dataSource" ref="dataSource" ></property>
+  	</bean>
+  	<tx:annotation-driven transaction-manager="txManager"/>
+  	<!-- 事务的规则 -->
+  	<tx:advice id="txAdvice" transaction-manager="txManager">
+  		<tx:attributes>
+  			<!-- method的name属性表示在什么方法上使用事务，可以使用通配符 -->
+  			<!-- 表示对所有以modify开头的方法添加事务 -->
+  			<tx:method name="modify*" propagation="REQUIRED" rollback-for="Exception"/>
+  			<tx:method name="add*" propagation="REQUIRED" rollback-for="Exception"/>
+  			<tx:method name="remove*" propagation="REQUIRED" rollback-for="Exception"/>
+  		</tx:attributes>
+  	</tx:advice>
+  	<!-- 
+  	<aop:config proxy-target-class="true">
+  		<aop:pointcut id="txCut" 
+  					  expression="execution (* com.ssm.service.impl.*.*(..))"/>
+  		<aop:advisor pointcut-ref="txCut" advice-ref="txAdvice"/>
+  	</aop:config>
+	  	<bean id="userDao" class="com.dao.impl.UserDaoImpl">
+	  		<property name="factory" ref="sqlSessionFactory"></property>
+	  	</bean>
+  	 -->
+</beans>

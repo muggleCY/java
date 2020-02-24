@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jc.dao.GameDao">
+	<sql id="sqlPiece">
+			ID, GAME_NAME, GAME_TYPE, GAME_STATUS, GAME_COVER, GAME_SCREEN1, GAME_SCREEN2, GAME_SCREEN3, GAME_CURRENCY, GAME_TARIFFE, GAME_DEVELOPERS, GAME_FILING, GAME_DETAIL, GAME_INTRODUCTION, CREATE_TIME, UPDATE_TIME
+	</sql>
+	<select id="selectGamesByPage" parameterType="java.util.Map" resultMap="gameMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from
+				(select 
+					rownum num,t.* 
+				from
+					(select 
+						<include refid="sqlPiece"></include>
+					from 
+						t_game 
+					<where>
+						<if test="(gameName neq null) and (gameName neq '')">
+							and GAME_NAME like '%${gameName}%'
+						</if>
+						<if test="(gameType neq null) and (gameType neq '')">
+							and GAME_TYPE = #{gameType}
+						</if>
+					</where>) t
+				where
+					rownum &lt;= #{pageNo} * #{pageSize} )
+			where 
+				num &gt; (#{pageNo} - 1) * #{pageSize}
+					
+	</select>
+	<select id="selectGames" parameterType="java.util.Map" resultMap="gamePlusMapper">
+			select 
+				ID, GAME_NAME, GAME_TYPE, GAME_STATUS, GAME_COVER, GAME_SCREEN1, GAME_SCREEN2, GAME_SCREEN3, GAME_CURRENCY, GAME_TARIFFE, GAME_DEVELOPERS, GAME_FILING, GAME_DETAIL, GAME_INTRODUCTION, CREATE_TIME, UPDATE_TIME,type_name,type_status,type_picture
+			from
+				(select 
+					rownum num,t.* 
+				from
+					(select 
+						g.*,p.type_name,p.type_status,p.type_picture
+					from 
+						t_game g,t_game_type p
+					<where>
+						g.game_type = p.id
+						and GAME_STATUS != 3
+						<if test="(gameName neq null) and (gameName neq '')">
+							and GAME_NAME like '%${gameName}%'
+						</if>
+						<if test="(gameType neq null) and (gameType neq '')">
+							and GAME_TYPE = #{gameType}
+						</if>
+						<if test="(gameStatus neq null) and (gameStatus neq '')">
+							and GAME_STATUS = #{gameStatus}
+						</if>
+						<if test="(typeStatus neq null) and (typeStatus neq '')">
+							and type_status = #{typeStatus}
+						</if>
+					</where>
+					order by g.id asc
+					) t
+				where
+					rownum &lt;= #{pageNo} * #{pageSize} )
+			where 
+				num &gt; (#{pageNo} - 1) * #{pageSize}
+					
+	</select>
+	<select id="countGame" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select 
+		<!-- 如果入参值为1，查询最大值，为2，查询最小值，为3查数量 -->
+		<choose>
+			<when test="num == 1">
+				max(id)
+			</when>
+			
+			<when test="num == 2">
+				min(id)
+			</when>
+			
+			<otherwise>
+				count(id) 
+			</otherwise>
+		</choose>
+		from 
+			t_game
+			<where>
+				GAME_STATUS != 3
+				<if test="(gameName neq null) and (gameName neq '')">
+					and GAME_NAME like '%${gameName}%'
+				</if>
+				<if test="(gameType neq null) and (gameType neq '')">
+					and GAME_TYPE = #{gameType}
+				</if>
+			</where>
+	</select>
+	<select id="countGameForUser" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select 
+		<!-- 如果入参值为1，查询最大值，为2，查询最小值，为3查数量 -->
+		<choose>
+			<when test="num == 1">
+				max(t_game.id)
+			</when>
+			
+			<when test="num == 2">
+				min(t_game.id)
+			</when>
+			
+			<otherwise>
+				count(t_game.id) 
+			</otherwise>
+		</choose>
+		from 
+			t_game,t_game_type
+			<where>
+				t_game.game_type = t_game_type.id
+				and GAME_STATUS != 3
+				<if test="(gameName neq null) and (gameName neq '')">
+					and GAME_NAME like '%${gameName}%'
+				</if>
+				<if test="(gameType neq null) and (gameType neq '')">
+					and GAME_TYPE = #{gameType}
+				</if>
+				<if test="(gameStatus neq null) and (gameStatus neq '')">
+					and GAME_STATUS = #{gameStatus}
+				</if>
+				<if test="(typeStatus neq null) and (typeStatus neq '')">
+					and type_status = #{typeStatus}
+				</if>
+						
+			</where>
+	</select>
+	<select id="selectGame" parameterType="java.lang.Integer" resultMap="gameMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from 
+				t_game
+			where 
+				id = #{id}
+				and GAME_STATUS != 3
+	</select>
+	<select id="selectGameByName" parameterType="com.jc.pojo.Game" resultMap="gameMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from 
+				t_game
+			where 
+				GAME_NAME = #{gameName}
+				and GAME_STATUS != 3
+	</select>
+	<insert id="insertGame" parameterType="com.jc.pojo.Game">
+			<selectKey order="BEFORE" resultType="java.lang.Integer" keyProperty="id">
+				select game_seq.nextval from dual
+			</selectKey>
+			insert into 
+				t_game 
+			values
+				(#{id},#{gameName},#{gameType},#{gameStatus},#{gameCover},#{gameScreen1},#{gameScreen2},#{gameScreen3},
+				#{gameCurrency},#{gameTariffe},#{gameDevelopers},#{gameFiling},#{gameDetail},#{gameIntroduction}
+				,#{createTime},#{updateTime})
+	</insert>
+	<update id="updateGame" parameterType="com.jc.pojo.Game">
+		update 
+			t_game
+		<set>
+			<if test="gameName neq null and gameName neq '' ">
+				GAME_NAME = #{gameName},	
+			</if>
+			<if test="gameType neq null and gameType neq '' ">
+				GAME_TYPE = #{gameType},	
+			</if>
+			<if test="gameStatus neq null ">
+				GAME_STATUS = #{gameStatus},	
+			</if>
+			<if test="gameCover neq null">
+				GAME_COVER = #{gameCover},	
+			</if>
+			<if test="gameScreen1 neq null">
+				GAME_SCREEN1 = #{gameScreen1},	
+			</if>
+			<if test="gameScreen2 neq null">
+				GAME_SCREEN2 = #{gameScreen2},	
+			</if>
+			<if test="gameScreen3 neq null">
+				GAME_SCREEN3 = #{gameScreen3},	
+			</if>
+			<if test="gameCurrency neq null">
+				GAME_CURRENCY = #{gameCurrency},	
+			</if>
+			<if test="gameTariffe neq null">
+				GAME_TARIFFE = #{gameTariffe},	
+			</if>
+			<if test="gameDevelopers neq null and gameDevelopers neq '' ">
+				GAME_DEVELOPERS = #{gameDevelopers},	
+			</if>
+			<if test="gameFiling neq null and gameFiling neq '' ">
+				GAME_FILING = #{gameFiling},	
+			</if>
+			<if test="gameDetail neq null and gameDetail neq '' ">
+				GAME_DETAIL = #{gameDetail},	
+			</if>
+			<if test="gameIntroduction neq null and gameIntroduction neq '' ">
+				GAME_INTRODUCTION = #{gameIntroduction},	
+			</if>
+			<if test="createTime neq null">
+				CREATE_TIME = #{createTime},	
+			</if>
+			<if test="updateTime neq null">
+				UPDATE_TIME = #{updateTime},	
+			</if>
+		</set>
+		where
+			id = #{id}
+	</update>
+	<delete id="deleteGame" parameterType="java.lang.Integer">
+		delete from 
+			t_game
+		where
+			id = #{id}
+	</delete>
+	<select id="seleteGamesByGameType" parameterType="java.lang.Integer" resultMap="gameMapper">
+			select 
+				<include refid="sqlPiece"></include>
+			from 
+				t_game
+			where 
+				GAME_TYPE = #{gameType}
+				and GAME_STATUS != 3
+	</select>
+	<!-- 
+	<resultMap type="com.jc.pojo.Game" id="gamePlusMapper">
+		<result column="ID" property="id"/>
+		<result column="GAME_NAME" property="gameName"/>
+		<result column="GAME_STATUS" property="gameStatus"/>
+		<result column="GAME_COVER" property="gameCover"/>
+		<result column="GAME_SCREEN1" property="gameScreen1"/>
+		<result column="GAME_SCREEN2" property="gameScreen2"/>
+		<result column="GAME_SCREEN3" property="gameScreen3"/>
+		<result column="GAME_CURRENCY" property="gameCurrency"/>
+		<result column="GAME_TARIFFE" property="gameTariffe"/>
+		<result column="GAME_DEVELOPERS" property="gameDevelopers"/>
+		<result column="GAME_FILING" property="gameFiling"/>
+		<result column="GAME_DETAIL" property="gameDetail"/>
+		<result column="GAME_INTRODUCTION" property="gameIntroduction"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="UPDATE_TIME" property="updateTime"/>
+		<association javaType="com.jc.pojo.GameType" property="gameType"
+				select="GameTypeMapper.selectGameTypeById"
+				column="GAME_TYPE">
+		</association>
+	</resultMap>
+	 -->
+	<!--
+	 手动定义对应关系
+	  -->
+		<!-- 
+	<resultMap type="com.jc.pojo.Game" id="gameMapper">
+		<result column="ID" property="id"/>
+		<result column="GAME_NAME" property="gameName"/>
+		<result column="GAME_TYPE" property="gameType" typeHandler="com.jc.handler.GameTypeHandler" javaType="com.jc.pojo.GameType"/>
+		<result column="GAME_STATUS" property="gameStatus"/>
+		<result column="GAME_COVER" property="gameCover"/>
+		<result column="GAME_SCREEN1" property="gameScreen1"/>
+		<result column="GAME_SCREEN2" property="gameScreen2"/>
+		<result column="GAME_SCREEN3" property="gameScreen3"/>
+		<result column="GAME_CURRENCY" property="gameCurrency"/>
+		<result column="GAME_TARIFFE" property="gameTariffe"/>
+		<result column="GAME_DEVELOPERS" property="gameDevelopers"/>
+		<result column="GAME_FILING" property="gameFiling"/>
+		<result column="GAME_DETAIL" property="gameDetail"/>
+		<result column="GAME_INTRODUCTION" property="gameIntroduction"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="UPDATE_TIME" property="updateTime"/>
+	</resultMap>
+	 -->
+	<resultMap type="com.jc.pojo.Game" id="gameMapper">
+		<result column="ID" property="id"/>
+		<result column="GAME_NAME" property="gameName"/>
+		<result column="GAME_TYPE" property="gameType"/>
+		<result column="GAME_STATUS" property="gameStatus"/>
+		<result column="GAME_COVER" property="gameCover"/>
+		<result column="GAME_SCREEN1" property="gameScreen1"/>
+		<result column="GAME_SCREEN2" property="gameScreen2"/>
+		<result column="GAME_SCREEN3" property="gameScreen3"/>
+		<result column="GAME_CURRENCY" property="gameCurrency"/>
+		<result column="GAME_TARIFFE" property="gameTariffe"/>
+		<result column="GAME_DEVELOPERS" property="gameDevelopers"/>
+		<result column="GAME_FILING" property="gameFiling"/>
+		<result column="GAME_DETAIL" property="gameDetail"/>
+		<result column="GAME_INTRODUCTION" property="gameIntroduction"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="UPDATE_TIME" property="updateTime"/>
+	</resultMap>
+	<resultMap type="com.jc.vo.GameVo" id="gamePlusMapper">
+		<result column="ID" property="id"/>
+		<result column="GAME_NAME" property="gameName"/>
+		<result column="GAME_STATUS" property="gameStatus"/>
+		<result column="GAME_COVER" property="gameCover"/>
+		<result column="GAME_SCREEN1" property="gameScreen1"/>
+		<result column="GAME_SCREEN2" property="gameScreen2"/>
+		<result column="GAME_SCREEN3" property="gameScreen3"/>
+		<result column="GAME_CURRENCY" property="gameCurrency"/>
+		<result column="GAME_TARIFFE" property="gameTariffe"/>
+		<result column="GAME_DEVELOPERS" property="gameDevelopers"/>
+		<result column="GAME_FILING" property="gameFiling"/>
+		<result column="GAME_DETAIL" property="gameDetail"/>
+		<result column="GAME_INTRODUCTION" property="gameIntroduction"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="UPDATE_TIME" property="updateTime"/>
+		<result column="type_name" property="typeName"/>
+		<result column="type_status" property="typeStatus"/>
+		<result column="type_picture" property="typePicture"/>
+	</resultMap>
+</mapper>
