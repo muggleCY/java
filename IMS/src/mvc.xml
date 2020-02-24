@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mvc [
+	<!ELEMENT mvc (package*)>
+	<!ELEMENT package (action+)>
+	<!ATTLIST package name CDATA #REQUIRED>
+	<!ATTLIST package namespace CDATA #REQUIRED>
+	<!ELEMENT action (result+)>
+	<!ATTLIST action id CDATA #REQUIRED>
+	<!ATTLIST action name CDATA #REQUIRED>
+	<!ATTLIST action method CDATA #REQUIRED>
+	<!ELEMENT result (#PCDATA)>
+	<!ATTLIST result name CDATA #REQUIRED>
+	<!ATTLIST result type CDATA #REQUIRED>
+]>
+<mvc>
+	<package name="user" namespace="user">
+		<action id="userAction" name="login" method="login">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="userAction" name="reset" method="resetPwd">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="userAction" name="clear" method="clearLogin">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="userAction" name="getOldPwd" method="getOldPwd">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="userAction" name="showUsers" method="showUsers">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="userAction" name="deleteUser" method="deleteUser">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="userAction" name="showOneUser" method="showOneUser">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="userAction" name="updateUser" method="updateUser">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="userAction" name="addUser" method="addUser">
+			<result type="ajax" name="success"></result>
+		</action>
+	</package>
+	<package name="dept" namespace="dept">
+		<action id="deptAction" name="showDepts" method="showDepts">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="deptAction" name="deleteOneDept" method="deleteOneDept">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="deptAction" name="showOneDept" method="showOneDept">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="deptAction" name="updateDept" method="updateDept">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="deptAction" name="addOneDept" method="addOneDept">
+			<result type="ajax" name="success"></result>
+		</action>
+	</package>
+	<package name="employee" namespace="employee">
+		<action id="employeeAction" name="showAllEmp" method="showAllEmp">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="employeeAction" name="deleteEmp" method="deleteEmp">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="employeeAction" name="addEmp" method="addEmp">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="employeeAction" name="getOneEmp" method="getOneEmp">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="employeeAction" name="updateEmp" method="updateEmp">
+			<result type="ajax" name="success"></result>
+		</action>
+	</package>
+	<package name="expense" namespace="expense">
+		<action id="expenseAction" name="showAllExpense" method="showAllExpense">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="expenseAction" name="showOneRecById" method="showOneRecById">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="expenseAction" name="deleteOneRecById" method="deleteOneRecById">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="expenseAction" name="addOneExpense" method="addOneExpense">
+			<result type="ajax" name="success"></result>
+		</action>
+	</package>
+	<package name="system" namespace="system">
+		<action id="systemAction" name="getMenuById" method="getMenuById">
+			<result type="ajax" name="success"></result>
+		</action>
+	</package>
+	<package name="holiday" namespace="holiday">
+		<action id="holidayAction" name="showHolidays" method="showHolidays">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="holidayAction" name="showOneHoliday" method="showOneHoliday">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="holidayAction" name="updateHoliday" method="updateHoliday">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="holidayAction" name="insertHoliday" method="insertHoliday">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="holidayAction" name="deleteholiday" method="deleteholiday">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="holidayAction" name="getHolidaysByPage" method="getHolidaysByPage">
+			<result type="ajax" name="success"></result>
+		</action>
+	</package>
+	<package name="role" namespace="role">
+		<action id="roleAction" name="showRoles" method="showRoles">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="roleAction" name="deleteRole" method="deleteRole">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="roleAction" name="showOneRole" method="showOneRole">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="roleAction" name="updateRole" method="updateRole">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="roleAction" name="insertRole" method="insertRole">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="roleAction" name="getRoleList" method="getRoleList">
+			<result type="ajax" name="success"></result>
+		</action>
+	</package>
+	<package name="per" namespace="per">
+		<action id="permissionAction" name="showPerByPage" method="showPerByPage">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="permissionAction" name="deletePer" method="deletePer">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="permissionAction" name="insertPer" method="insertPer">
+			<result type="ajax" name="success"></result>
+		</action>
+		<action id="permissionAction" name="showOnePer" method="showOnePer">
+			<result type="ajax" name="success"></result>
+		</action>
+	</package>
+</mvc>

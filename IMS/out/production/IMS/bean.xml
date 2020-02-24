@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE object [
+	<!ELEMENT object (trans,dao,service,proxy,action)>
+	<!ELEMENT trans (bean)>
+	<!ELEMENT dao (bean*)>
+	<!ELEMENT service (bean*)>
+	<!ELEMENT proxy (bean*)>
+	<!ELEMENT action (bean*)>
+	<!ELEMENT bean (property*) >
+	<!ATTLIST bean id CDATA #REQUIRED>
+	<!ATTLIST bean class CDATA #REQUIRED>
+	<!ELEMENT property (#PCDATA)>
+	<!ATTLIST property id CDATA #REQUIRED>
+	<!ATTLIST property ref CDATA #REQUIRED>
+]>
+<object>
+	<trans>
+		<bean id="trans" class="com.web.trans.impl.TransactionImpl"></bean>
+	</trans>
+	<dao>
+		<bean id="userDao" class="com.web.dao.impl.UserDaoImpl"></bean>
+		<bean id="deptDao" class="com.web.dao.impl.DeptDaoImpl"></bean>
+		<bean id="countDao" class="com.web.dao.impl.CountDaoImpl"></bean>
+		<bean id="employeeDao" class="com.web.dao.impl.EmployeeDaoImpl"></bean>
+		<bean id="employeeVODao" class="com.web.dao.impl.EmployeeVODaoImpl"></bean>
+		<bean id="expenseVODao" class="com.web.dao.impl.ExpenseVODaoImpl"></bean>
+		<bean id="expenseDao" class="com.web.dao.impl.ExpenseDaoImpl"></bean>
+		<bean id="menuVODao" class="com.web.dao.impl.MenuVOImpl"></bean>
+		<bean id="holidayDao" class="com.web.dao.impl.HolidayDaoImpl"></bean>
+		<bean id="roleDao" class="com.web.dao.impl.RoleDaoImpl"></bean>
+		<bean id="permissionDao" class="com.web.dao.impl.PermissionDaoImpl"></bean>
+        <bean id="deptVODao" class="com.web.dao.impl.DeptVODaoImpl"></bean>
+        <bean id="maxNoDao" class="com.web.dao.impl.MaxNoDaoImpl"></bean>
+		<bean id="holidayVoDao" class="com.web.dao.impl.HolidayVoDaoImpl"></bean>
+    </dao>
+	<service>
+		<bean id="userService" class="com.web.service.impl.UserServiceImpl">
+			<property id="userDao" ref="userDao"/>
+			<property id="employeeDao" ref="employeeDao"/>
+		</bean>
+		<bean id="deptService" class="com.web.service.impl.DeptServiceImpl">
+			<property id="deptDao" ref="deptDao"/>
+            <property id="deptVODao" ref="deptVODao"/>
+            <property id="employeeDao" ref="employeeDao"/>
+			<property id="maxNoDao" ref="maxNoDao"/>
+		</bean>
+		<bean id="employeeService" class="com.web.service.impl.EmployeeServiceImpl">
+			<property id="countDao" ref="countDao"/>
+			<property id="employeeDao" ref="employeeDao"/>
+			<property id="employeeVODao" ref="employeeVODao"/>
+			<property id="roleDao" ref="roleDao"/>
+			<property id="deptDao" ref="deptDao"/>
+			<property id="maxNoDao" ref="maxNoDao"/>
+		</bean>
+		<bean id="expenseService" class="com.web.service.impl.ExpenseServiceImpl">
+			<property id="countDao" ref="countDao"/>
+			<property id="expenseVODao" ref="expenseVODao"/>
+			<property id="expenseDao" ref="expenseDao"/>
+			<property id="maxNoDao" ref="maxNoDao"/>
+		</bean>
+		<bean id="holidayService" class="com.web.service.impl.HolidayServiceImpl">
+			<property id="holidayDao" ref="holidayDao"/>
+			<property id="holidayVoDao" ref="holidayVoDao"/>
+			<property id="employeeDao" ref="employeeDao"/>
+		</bean>
+		<bean id="roleService" class="com.web.service.impl.RoleServiceImpl">
+			<property id="roleDao" ref="roleDao"/>
+			<property id="userDao" ref="userDao"/>
+		</bean>
+		<bean id="permissionService" class="com.web.service.impl.PermissionServiceImpl">
+			<property id="permissionDao" ref="permissionDao"/>
+		</bean>
+		<!-- 使用ref找到需要的dao对象，直接放入service中，实现自动注入 -->
+	</service>
+	<proxy>
+		<bean id="userServiceProxy" class="com.web.service.proxy.UserServiceProxy">
+			<property id="userService" ref="userService"/>
+			<!-- id指的是本类中对象的名字，ref指向目标bean -->
+			<property id="trans" ref="trans"/>
+		</bean>
+		<bean id="deptServiceProxy" class="com.web.service.proxy.DeptServiceProxy">
+			<property id="deptService" ref="deptService"/>
+			<!-- id指的是本类中对象的名字，ref指向目标bean -->
+			<property id="trans" ref="trans"/>
+		</bean>
+		<bean id="employeeServiceProxy" class="com.web.service.proxy.EmpServiceProxy">
+			<property id="employeeService" ref="employeeService"/>
+			<!-- id指的是本类中对象的名字，ref指向目标bean -->
+			<property id="trans" ref="trans"/>
+		</bean>
+		<bean id="holidayServiceProxy" class="com.web.service.proxy.HolidayServiceProxy">
+			<property id="holidayService" ref="holidayService"/>
+			<!-- id指的是本类中对象的名字，ref指向目标bean -->
+			<property id="trans" ref="trans"/>
+		</bean>
+		<bean id="roleServiceProxy" class="com.web.service.proxy.RoleServiceProxy">
+			<property id="roleService" ref="roleService"/>
+			<!-- id指的是本类中对象的名字，ref指向目标bean -->
+			<property id="trans" ref="trans"/>
+		</bean>
+		<bean id="permissionServiceProxy" class="com.web.service.proxy.PermissionServiceProxy">
+			<property id="permissionService" ref="permissionService"/>
+			<!-- id指的是本类中对象的名字，ref指向目标bean -->
+			<property id="trans" ref="trans"/>
+		</bean>
+	</proxy>
+	<action>
+		<bean id="userAction" class="com.web.action.UserAction">
+			<property id="userService" ref="userService"/>
+			<property id="userServiceProxy" ref="userServiceProxy"/>
+		</bean>
+		<bean id="deptAction" class="com.web.action.DeptAction">
+			<property id="deptService" ref="deptService"/>
+			<property id="deptServiceProxy" ref="deptServiceProxy"/>
+		</bean>
+		<bean id="employeeAction" class="com.web.action.EmployeeAction">
+			<property id="employeeService" ref="employeeService"/>
+			<property id="employeeServiceProxy" ref="employeeServiceProxy"/>
+		</bean>
+		<bean id="expenseAction" class="com.web.action.ExpenseAction">
+			<property id="expenseService" ref="expenseService"/>
+		</bean>
+		<bean id="systemAction" class="com.web.action.SystemAction">
+			<property id="menuVODao" ref="menuVODao"/>
+		</bean>
+		<bean id="holidayAction" class="com.web.action.HolidayAction">
+			<property id="holidayService" ref="holidayServiceProxy"/>
+		</bean>
+		<bean id="roleAction" class="com.web.action.RoleAction">
+			<property id="roleService" ref="roleServiceProxy"/>
+			<property id="roleDao" ref="roleDao"/>
+		</bean>
+		<bean id="permissionAction" class="com.web.action.PermissionAction">
+			<property id="permissionService" ref="permissionServiceProxy"/>
+		</bean>
+	</action>
+</object>
